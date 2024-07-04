@@ -1,4 +1,3 @@
-import sys
 from enum import auto, StrEnum
 
 MAX_QUOTE_LENGTH = 50
@@ -68,9 +67,9 @@ def run_command(command: str) -> None:
            quotes to be displayed in discord flavored markdown
     """
     arguments = parse_command_into_arguments(command)
-    if(arguments[0].lower() != 'quote'):
+    if arguments[0].lower() != 'quote' :
         raise ValueError('Invalid command')
-    elif(len(arguments) == 1):
+    elif len(arguments) == 1 :
         raise ValueError('No additional arguments specified')
     
     # Valid quote command
@@ -107,5 +106,4 @@ if __name__ == '__main__':
         command = input('> ')
         if command in exit_commands:
             break
-
         run_command(command)
