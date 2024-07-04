@@ -19,11 +19,11 @@ class DuplicateError(Exception):
 # Implement the class and function below
 class Quote:
     def __init__(self, quote: str, mode: "VariantMode") -> None:
-        self.quote = ...
-        self.mode = ...
+        self.quote = quote
+        self.mode = mode
 
     def __str__(self) -> str:
-        ...
+        return f'Quote {{ quote: {self.quote}, mode: {self.mode} }}'
 
     def _create_variant(self) -> str:
         """
@@ -45,14 +45,37 @@ def run_command(command: str) -> None:
     # Parse the arguments and make sure the quote is one argument.
     arguments = []
     tokens = command.split()
+    acceptable_quote_marks = ['"', '“']
     for i, token in enumerate(tokens):
-        if token[0] == '"':
+        if token[0] in acceptable_quote_marks:
             quoted_token = ' '.join(tokens[i:])
             arguments.append(quoted_token)
             break
         else:
             arguments.append(token)
-    print(f'arguments: {arguments}')
+    # print(f'arguments: {arguments}')
+    if(arguments[0].lower() != 'quote'):
+        raise ValueError("Invalid command")
+    
+    # Valid quote command
+    values_for_quote_class = ''
+    second_argument = arguments[1].lower()
+    if second_argument == 'list':
+        print('do list command')
+    elif second_argument[0] in acceptable_quote_marks:
+        values_for_quote_class = (second_argument, VariantMode.NORMAL)
+    else:
+        # uwu and piglatin
+        quote_value = arguments[2]
+        uwu_piglatin_values = {
+            'uwu': (quote_value, VariantMode.UWU),
+            'piglatin': (quote_value, VariantMode.PIGLATIN),
+        }
+        values_for_quote_class = uwu_piglatin_values[second_argument]
+    
+    quote, mode = values_for_quote_class
+    q = Quote(quote, mode)
+    print(q)
 
 # The code below is available for you to use
 # You do not need to implement it, you can assume it will work as specified
@@ -75,6 +98,9 @@ if __name__ == '__main__':
     command = ''
     exit_commands = ['quit', 'q', 'exit']
 
-    while(command not in exit_commands):
+    while command not in exit_commands:
         command = input('> ')
+        if command in exit_commands:
+            break
+
         run_command(command)
