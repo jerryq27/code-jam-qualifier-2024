@@ -44,6 +44,18 @@ def parse_command_into_arguments(command: str) -> list[str]:
     # print(f'arguments: {arguments}')
     return arguments
 
+def determine_variant(arguments: list[str]) -> tuple[str, VariantMode]:
+    second_arg = arguments[1]
+
+    if second_arg[0] in ['"', '“']:
+        return (second_arg, VariantMode.NORMAL)
+    elif second_arg.lower() == 'uwu':
+        return (arguments[2], VariantMode.UWU)
+    elif second_arg.lower() == 'piglatin':
+        return (arguments[2], VariantMode.PIGLATIN)
+    else:
+        raise ValueError('Invalid command')
+
 def run_command(command: str) -> None:
     """
     Will be given a command from a user. The command will be parsed and executed appropriately.
@@ -57,27 +69,18 @@ def run_command(command: str) -> None:
     """
     arguments = parse_command_into_arguments(command)
     if(arguments[0].lower() != 'quote'):
-        raise ValueError("Invalid command")
+        raise ValueError('Invalid command')
+    elif(len(arguments) == 1):
+        raise ValueError('No additional arguments specified')
     
     # Valid quote command
-    values_for_quote_class = ''
     second_argument = arguments[1].lower()
     if second_argument == 'list':
         print('do list command')
-    elif second_argument[0] in ['"', '“']:
-        values_for_quote_class = (second_argument, VariantMode.NORMAL)
     else:
-        # uwu and piglatin
-        quote_value = arguments[2]
-        uwu_piglatin_values = {
-            'uwu': (quote_value, VariantMode.UWU),
-            'piglatin': (quote_value, VariantMode.PIGLATIN),
-        }
-        values_for_quote_class = uwu_piglatin_values[second_argument]
-    
-    quote, mode = values_for_quote_class
-    q = Quote(quote, mode)
-    print(q)
+        quote, mode = determine_variant(arguments)
+        q = Quote(quote, mode)
+        print(q)
 
 # The code below is available for you to use
 # You do not need to implement it, you can assume it will work as specified
