@@ -30,6 +30,19 @@ class Quote:
         Transforms the quote to the appropriate variant indicated by `self.mode` and returns the result
         """
 
+def parse_command_into_arguments(command: str) -> list[str]:
+    # Parse the arguments and make sure the quote is one argument.
+    arguments = []
+    tokens = command.split()
+    for i, token in enumerate(tokens):
+        if token[0] in ['"', '“']:
+            quoted_token = ' '.join(tokens[i:])
+            arguments.append(quoted_token)
+            break
+        else:
+            arguments.append(token)
+    # print(f'arguments: {arguments}')
+    return arguments
 
 def run_command(command: str) -> None:
     """
@@ -42,18 +55,7 @@ def run_command(command: str) -> None:
         - `quote list` - print a formatted string that lists the current
            quotes to be displayed in discord flavored markdown
     """
-    # Parse the arguments and make sure the quote is one argument.
-    arguments = []
-    tokens = command.split()
-    acceptable_quote_marks = ['"', '“']
-    for i, token in enumerate(tokens):
-        if token[0] in acceptable_quote_marks:
-            quoted_token = ' '.join(tokens[i:])
-            arguments.append(quoted_token)
-            break
-        else:
-            arguments.append(token)
-    # print(f'arguments: {arguments}')
+    arguments = parse_command_into_arguments(command)
     if(arguments[0].lower() != 'quote'):
         raise ValueError("Invalid command")
     
@@ -62,7 +64,7 @@ def run_command(command: str) -> None:
     second_argument = arguments[1].lower()
     if second_argument == 'list':
         print('do list command')
-    elif second_argument[0] in acceptable_quote_marks:
+    elif second_argument[0] in ['"', '“']:
         values_for_quote_class = (second_argument, VariantMode.NORMAL)
     else:
         # uwu and piglatin
