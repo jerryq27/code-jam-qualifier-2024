@@ -1,3 +1,4 @@
+import sys
 from enum import auto, StrEnum
 
 MAX_QUOTE_LENGTH = 50
@@ -41,8 +42,17 @@ def run_command(command: str) -> None:
         - `quote list` - print a formatted string that lists the current
            quotes to be displayed in discord flavored markdown
     """
-    ...
-
+    # Parse the arguments and make sure the quote is one argument.
+    arguments = []
+    tokens = command.split()
+    for i, token in enumerate(tokens):
+        if token[0] == '"':
+            quoted_token = ' '.join(tokens[i:])
+            arguments.append(quoted_token)
+            break
+        else:
+            arguments.append(token)
+    print(f'arguments: {arguments}')
 
 # The code below is available for you to use
 # You do not need to implement it, you can assume it will work as specified
@@ -60,3 +70,11 @@ class Database:
         if str(quote) in [str(quote) for quote in cls.quotes]:
             raise DuplicateError
         cls.quotes.append(quote)
+
+if __name__ == '__main__':
+    command = ''
+    exit_commands = ['quit', 'q', 'exit']
+
+    while(command not in exit_commands):
+        command = input('> ')
+        run_command(command)
