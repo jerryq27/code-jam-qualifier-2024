@@ -21,6 +21,12 @@ class Quote:
         self.quote = quote
         self.mode = mode
 
+        if self.mode != VariantMode.NORMAL:
+            self.quote = self._create_variant()
+
+        if len(self.quote) > MAX_QUOTE_LENGTH:
+            raise ValueError('Quote is too long')
+
     def __str__(self) -> str:
         return f'Quote {{ quote: {self.quote}, mode: {self.mode} }}'
 
@@ -28,6 +34,28 @@ class Quote:
         """
         Transforms the quote to the appropriate variant indicated by `self.mode` and returns the result
         """
+        new_quote = self.quote
+        if self.mode == VariantMode.UWU:
+            for lowercase_char in ['l', 'r']:
+                new_quote = new_quote.replace(lowercase_char, 'w')
+            for uppercase_char in ['L', 'R']:
+                new_quote = new_quote.replace(uppercase_char, 'W')
+
+            # Need offset for index since quote length changes when added U-U/u-u replacement.
+            offset = 0
+            for i, character in enumerate(new_quote):
+                if character in ['u', 'U']:
+                    modified_quote = new_quote[:i+offset] + f'{character}-{character}' + new_quote[i+1+offset:]
+                    if len(modified_quote) > MAX_QUOTE_LENGTH:
+                        # warnings module warn?
+                        print('Quote too long, only partially transformed')
+                        break
+                    else:
+                        offset += 2
+                        new_quote = modified_quote
+        elif self.mode == VarianMode.PIGLATIN:
+            ...
+        return new_quote
 
 def parse_command_into_arguments(command: str) -> list[str]:
     # Parse the arguments and make sure the quote is one argument.
@@ -36,6 +64,9 @@ def parse_command_into_arguments(command: str) -> list[str]:
     for i, token in enumerate(tokens):
         if token[0] in ['"', '“']:
             quoted_token = ' '.join(tokens[i:])
+            # Check if anyone tried to be cheeky and pass additional arguments after the quote
+            if quoted_token[-1] not in ['"', '“']:
+                raise ValueError('Invalid additional arguments')
             arguments.append(quoted_token)
             break
         else:
