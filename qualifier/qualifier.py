@@ -53,8 +53,44 @@ class Quote:
                     else:
                         offset += 2
                         new_quote = modified_quote
-        elif self.mode == VarianMode.PIGLATIN:
-            ...
+        elif self.mode == VariantMode.PIGLATIN:
+            """
+                Starts with consonant, find first vowel. Move all letters until first vowel to the end and add "ay"
+                Starts with vowel (a, e, i, o, u), add "way" to the end
+            """
+            quote_mark = new_quote[0]
+            quoteless_quote = new_quote[1:-1]
+
+            words = quoteless_quote.split()
+
+            vowels = ['a', 'e', 'i', 'o', 'u']
+            punctuation_marks = (',', '.', '!', '?')
+
+            piglatin_words = []
+            for word in words:
+                punctuation_mark = ''
+                has_punctuation_mark = word.endswith(punctuation_marks)
+                if has_punctuation_mark:
+                    punctuation_mark = word[-1]
+                    word = word[:-1]
+                
+                if word[0] in vowels:
+                    piglatin_word = f'{word}way'
+                    if has_punctuation_mark:
+                        piglatin_word += punctuation_mark
+                    
+                    piglatin_words.append(piglatin_word)
+                else:
+                    for i, character in enumerate(word):
+                        if character in vowels:
+                            consonant_cluster = word[:i]
+                            piglatin_word = word[i:] + f'{consonant_cluster}ay'
+                            if has_punctuation_mark:
+                                piglatin_word += punctuation_mark
+                            
+                            piglatin_words.append(piglatin_word)
+                            break
+            new_quote = quote_mark + ' '.join(piglatin_words) + quote_mark
         return new_quote
 
 def parse_command_into_arguments(command: str) -> list[str]:
