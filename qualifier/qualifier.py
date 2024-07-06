@@ -35,77 +35,88 @@ class Quote:
         """
         Transforms the quote to the appropriate variant indicated by `self.mode` and returns the result
         """
-        new_quote = self.quote
+        quote = self.quote
+
         if self.mode == VariantMode.UWU:
-            for lowercase_char in ['l', 'r']:
-                new_quote = new_quote.replace(lowercase_char, 'w')
-            for uppercase_char in ['L', 'R']:
-                new_quote = new_quote.replace(uppercase_char, 'W')
-
-            # Need offset for index since quote length changes when added U-U/u-u replacement.
-            offset = 0
-            for i, character in enumerate(new_quote):
-                if character in ['u', 'U']:
-                    modified_quote = new_quote[:i+offset] + f'{character}-{character}' + new_quote[i+1+offset:]
-                    if len(modified_quote) > MAX_QUOTE_LENGTH:
-                        warnings.warn('Quote too long, only partially transformed')
-                        break
-                    else:
-                        offset += 2
-                        new_quote = modified_quote
-            if new_quote == self.quote:
-                raise ValueError('Quote was not modified')
+            return self._uwuify(quote)
         elif self.mode == VariantMode.PIGLATIN:
-            """
-                Starts with consonant, find first vowel. Move all letters until first vowel to the end and add "ay"
-                Starts with vowel (a, e, i, o, u), add "way" to the end
-            """
-            quote_mark = new_quote[0]
-            quoteless_quote = new_quote[1:-1]
+            return self._piglatinify(quote)
+        else:
+            raise ValueError(f'Invalid mode: {self.mode}')
 
-            words = quoteless_quote.split()
+    def _uwuify(self, quote):
+        # Take care of the easier requirements first
+        for lowercase_char in ['l', 'r']:
+            quote = quote.replace(lowercase_char, 'w')
+        for uppercase_char in ['L', 'R']:
+            quote = quote.replace(uppercase_char, 'W')
 
-            vowels = ['a', 'e', 'i', 'o', 'u']
-            punctuation_marks = (',', '.', '!', '?')
-
-            piglatin_words = []
-            for word in words:
-                punctuation_mark = ''
-                has_punctuation_mark = word.endswith(punctuation_marks)
-                if has_punctuation_mark:
-                    punctuation_mark = word[-1]
-                    word = word[:-1]
-                
-                if word[0] in vowels:
-                    piglatin_word = f'{word}way'
-                    if has_punctuation_mark:
-                        piglatin_word += punctuation_mark
-                    
-                    piglatin_words.append(piglatin_word)
+        # Need offset for index since quote length changes when added U-U/u-u replacement.
+        u_u_offset = 0
+        for i, character in enumerate(quote):
+            if character in ['u', 'U']:
+                # String slicing op
+                modified_quote = quote[:i+u_u_offset] + f'{character}-{character}' + quote[i+1+u_u_offset:]
+                if len(modified_quote) > MAX_QUOTE_LENGTH:
+                    warnings.warn('Quote too long, only partially transformed')
+                    break
                 else:
-                    for i, character in enumerate(word):
-                        if character in vowels:
-                            consonant_cluster = word[:i]
-                            piglatin_word = word[i:] + f'{consonant_cluster}ay'
-                            if has_punctuation_mark:
-                                piglatin_word += punctuation_mark
-                            
-                            piglatin_words.append(piglatin_word)
-                            break
+                    u_u_offset += 2
+                    quote = modified_quote
+        if quote == self.quote:
+            raise ValueError('Quote was not modified')
+        return quote
 
-            no_words_changed = len(piglatin_words) == 0
-            not_all_words_changed = len(words) > len(piglatin_words)
+    def _piglatinify(self, quote):
+        quote_mark = quote[0]
+        quoteless_quote = quote[1:-1]
+
+        words = quoteless_quote.split()
+
+        vowels = ['a', 'e', 'i', 'o', 'u']
+        punctuation_marks = (',', '.', '!', '?')
+
+        piglatin_words = []
+        for word in words:
+            punctuation_mark = ''
+            has_punctuation_mark = word.endswith(punctuation_marks)
+            if has_punctuation_mark:
+                punctuation_mark = word[-1]
+                word = word[:-1]
             
-            if no_words_changed or not_all_words_changed:
-                raise ValueError('Quote was not modified')
+            # First vowels, much simpler
+            if word[0] in vowels:
+                piglatin_word = f'{word}way'
+                if has_punctuation_mark:
+                    piglatin_word += punctuation_mark
+                
+                piglatin_words.append(piglatin_word)
+            else:
+                # Cursed double for loop, but need to iterate the characters
+                for i, character in enumerate(word):
+                    if character in vowels:
+                        # I love string slicing in Python
+                        consonant_cluster = word[:i]
+                        piglatin_word = word[i:] + f'{consonant_cluster}ay'
+                        if has_punctuation_mark:
+                            piglatin_word += punctuation_mark
+                        
+                        piglatin_words.append(piglatin_word)
+                        break
 
-            # Everything checks out!
-            piglatin_words[0] = piglatin_words[0].lower().title()
-            new_quote = quote_mark + ' '.join(piglatin_words) + quote_mark
-        return new_quote
+        no_words_changed = len(piglatin_words) == 0
+        not_all_words_changed = len(words) > len(piglatin_words)
+        
+        if no_words_changed or not_all_words_changed:
+            raise ValueError('Quote was not modified')
+
+        # Everything checks out!
+        piglatin_words[0] = piglatin_words[0].lower().title()
+        quote = quote_mark + ' '.join(piglatin_words) + quote_mark
+        return quote
 
 def parse_command_into_arguments(command: str) -> list[str]:
-    # Parse the arguments and make sure the quote is one argument.
+    # Parse the arguments and make sure the quote sentence is one argument.
     arguments = []
     tokens = command.split()
     for i, token in enumerate(tokens):
@@ -118,7 +129,6 @@ def parse_command_into_arguments(command: str) -> list[str]:
             break
         else:
             arguments.append(token)
-    # print(f'arguments: {arguments}')
     return arguments
 
 def determine_variant(arguments: list[str]) -> tuple[str, VariantMode]:
@@ -153,7 +163,9 @@ def run_command(command: str) -> None:
     # Valid quote command
     second_argument = arguments[1].lower()
     if second_argument == 'list':
-        print('do list command')
+        quotes = Database.get_quotes()
+        for quote in quotes:
+            print(quote)
     else:
         quote, mode = determine_variant(arguments)
         q = Quote(quote, mode)
