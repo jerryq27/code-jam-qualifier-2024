@@ -206,11 +206,16 @@ class Database:
         cls.quotes.append(quote)
 
 if __name__ == '__main__':
+    title = """
+        Quote Immortalizer 9000 \\(^o^)/
+                    - jerryq27
+    """
+    print(title)
     command = ''
     exit_commands = ['quit', 'q', 'exit']
 
     while command not in exit_commands:
-        command = input('> ')
+        command = input('(>^_^)> ')
         if command in exit_commands:
             break
         run_command(command)
