@@ -22,14 +22,15 @@ class Quote:
         self.quote = quote
         self.mode = mode
 
-        if self.mode != VariantMode.NORMAL:
-            self.quote = self._create_variant()
-
         if len(self.quote) > MAX_QUOTE_LENGTH:
             raise ValueError('Quote is too long')
 
+        if self.mode != VariantMode.NORMAL:
+            self.quote = self._create_variant()
+
+
     def __str__(self) -> str:
-        return f'Quote {{ quote: {self.quote}, mode: {self.mode} }}'
+        return f'{self.quote[1:-1]}'
 
     def __eq__(self, other) -> bool:
         return str(self) == str(other)
@@ -110,13 +111,15 @@ class Quote:
         no_words_changed = len(piglatin_words) == 0
         not_all_words_changed = len(words) > len(piglatin_words)
         
-        if no_words_changed or not_all_words_changed:
-            raise ValueError('Quote was not modified')
-
-        # Everything checks out!
         piglatin_words[0] = piglatin_words[0].lower().title()
-        quote = quote_mark + ' '.join(piglatin_words) + quote_mark
-        return quote
+        piglatin_quote = quote_mark + ' '.join(piglatin_words) + quote_mark
+        quote_too_long = len(piglatin_quote) > MAX_QUOTE_LENGTH
+
+        if no_words_changed or not_all_words_changed or quote_too_long:
+            raise ValueError('Quote was not modified')
+        
+        # Everything checks out!
+        return piglatin_quote
 
 def parse_command_into_arguments(command: str) -> list[str]:
     # Parse the arguments and make sure the quote sentence is one argument.
@@ -168,17 +171,17 @@ def run_command(command: str) -> None:
     if second_argument == 'list':
         quotes = Database.get_quotes()
         for quote in quotes:
-            print(quote)
+            print(f'- {quote}')
     else:
         quote, mode = determine_variant(arguments)
         new_quote = Quote(quote, mode)
         
         # Check for duplicates
         db_quotes = Database.get_quotes()
-        if new_quote not in db_quotes:
+        try:
             Database.add_quote(new_quote)
-        else:
-            raise DuplicateError('Quote has already been added previously')
+        except DuplicateError:
+           print('Quote has already been added previously')
 
 # The code below is available for you to use
 # You do not need to implement it, you can assume it will work as specified
