@@ -31,6 +31,9 @@ class Quote:
     def __str__(self) -> str:
         return f'Quote {{ quote: {self.quote}, mode: {self.mode} }}'
 
+    def __eq__(self, other) -> bool:
+        return str(self) == str(other)
+
     def _create_variant(self) -> str:
         """
         Transforms the quote to the appropriate variant indicated by `self.mode` and returns the result
@@ -168,8 +171,14 @@ def run_command(command: str) -> None:
             print(quote)
     else:
         quote, mode = determine_variant(arguments)
-        q = Quote(quote, mode)
-        print(q)
+        new_quote = Quote(quote, mode)
+        
+        # Check for duplicates
+        db_quotes = Database.get_quotes()
+        if new_quote not in db_quotes:
+            Database.add_quote(new_quote)
+        else:
+            raise DuplicateError('Quote has already been added previously')
 
 # The code below is available for you to use
 # You do not need to implement it, you can assume it will work as specified
