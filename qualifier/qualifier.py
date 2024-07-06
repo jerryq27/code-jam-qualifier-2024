@@ -22,15 +22,18 @@ class Quote:
         self.quote = quote
         self.mode = mode
 
+        # Trim quotes if they exist
+        quotation_marks = ['"', '“', '”']
+        if self.quote[0] in quotation_marks:
+            self.quote = self.quote[1:-1]
+
         if len(self.quote) > MAX_QUOTE_LENGTH:
             raise ValueError('Quote is too long')
 
-        if self.mode != VariantMode.NORMAL:
-            self.quote = self._create_variant()
-
+        self.quote = self._create_variant()
 
     def __str__(self) -> str:
-        return f'{self.quote[1:-1]}'
+        return f'{self.quote}'
 
     def __eq__(self, other) -> bool:
         return str(self) == str(other)
@@ -41,7 +44,9 @@ class Quote:
         """
         quote = self.quote
 
-        if self.mode == VariantMode.UWU:
+        if self.mode == VariantMode.NORMAL:
+            return quote
+        elif self.mode == VariantMode.UWU:
             return self._uwuify(quote)
         elif self.mode == VariantMode.PIGLATIN:
             return self._piglatinify(quote)
@@ -72,10 +77,7 @@ class Quote:
         return quote
 
     def _piglatinify(self, quote):
-        quote_mark = quote[0]
-        quoteless_quote = quote[1:-1]
-
-        words = quoteless_quote.split()
+        words = quote.split()
 
         vowels = ['a', 'e', 'i', 'o', 'u']
         punctuation_marks = (',', '.', '!', '?')
@@ -112,7 +114,7 @@ class Quote:
         not_all_words_changed = len(words) > len(piglatin_words)
         
         piglatin_words[0] = piglatin_words[0].lower().title()
-        piglatin_quote = quote_mark + ' '.join(piglatin_words) + quote_mark
+        piglatin_quote = ' '.join(piglatin_words)
         quote_too_long = len(piglatin_quote) > MAX_QUOTE_LENGTH
 
         if no_words_changed or not_all_words_changed or quote_too_long:
