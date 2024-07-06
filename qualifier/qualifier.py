@@ -1,3 +1,4 @@
+import warnings
 from enum import auto, StrEnum
 
 MAX_QUOTE_LENGTH = 50
@@ -47,12 +48,13 @@ class Quote:
                 if character in ['u', 'U']:
                     modified_quote = new_quote[:i+offset] + f'{character}-{character}' + new_quote[i+1+offset:]
                     if len(modified_quote) > MAX_QUOTE_LENGTH:
-                        # warnings module warn?
-                        print('Quote too long, only partially transformed')
+                        warnings.warn('Quote too long, only partially transformed')
                         break
                     else:
                         offset += 2
                         new_quote = modified_quote
+            if new_quote == self.quote:
+                raise ValueError('Quote was not modified')
         elif self.mode == VariantMode.PIGLATIN:
             """
                 Starts with consonant, find first vowel. Move all letters until first vowel to the end and add "ay"
@@ -90,6 +92,15 @@ class Quote:
                             
                             piglatin_words.append(piglatin_word)
                             break
+
+            no_words_changed = len(piglatin_words) == 0
+            not_all_words_changed = len(words) > len(piglatin_words)
+            
+            if no_words_changed or not_all_words_changed:
+                raise ValueError('Quote was not modified')
+
+            # Everything checks out!
+            piglatin_words[0] = piglatin_words[0].lower().title()
             new_quote = quote_mark + ' '.join(piglatin_words) + quote_mark
         return new_quote
 
