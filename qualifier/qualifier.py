@@ -62,19 +62,26 @@ class Quote:
 
         # Need offset for index since quote length changes when added U-U/u-u replacement.
         u_u_offset = 0
-        for i, character in enumerate(quote):
-            if character in ['u', 'U']:
-                # String slicing op
-                modified_quote = quote[:i+u_u_offset] + f'{character}-{character}' + quote[i+1+u_u_offset:]
-                if len(modified_quote) > MAX_QUOTE_LENGTH:
-                    warnings.warn('Quote too long, only partially transformed')
-                    break
-                else:
-                    u_u_offset += 2
-                    quote = modified_quote
-        if quote == self.quote:
+        words = quote.split()
+        uwu_words = []
+        for word in words:
+            if word[0] in ['u', 'U']:
+                u_u_sequence = f'{word[0]}-{word[0]}'
+                word = f'{u_u_sequence}{word[1:]}'
+            uwu_words.append(word)
+
+        uwu_quote = ' '.join(uwu_words)
+
+        if len(uwu_quote) > MAX_QUOTE_LENGTH:
+            warnings.warn('Quote too long, only partially transformed')
+            uwu_quote = quote
+        else:
+            quote = uwu_quote
+
+        if uwu_quote == self.quote:
             raise ValueError('Quote was not modified')
-        return quote
+        
+        return uwu_quote
 
     def _piglatinify(self, quote):
         words = quote.split()
@@ -101,7 +108,7 @@ class Quote:
                 # Cursed double for loop, but need to iterate the characters
                 for i, character in enumerate(word):
                     if character in vowels:
-                        # I love string slicing in Python
+                        # String slicing op!
                         consonant_cluster = word[:i]
                         piglatin_word = word[i:] + f'{consonant_cluster}ay'
                         if has_punctuation_mark:
