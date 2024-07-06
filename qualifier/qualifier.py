@@ -2,6 +2,7 @@ import warnings
 from enum import auto, StrEnum
 
 MAX_QUOTE_LENGTH = 50
+EXIT_COMMANDS = ['quit', 'q', 'exit']
 QUOTATION_MARKS = ['"', '“', '”']
 
 # The two classes below are available for you to use
@@ -83,7 +84,7 @@ class Quote:
     def _piglatinify(self, quote):
         words = quote.split()
 
-        VOWELS = ('a', 'e', 'i', 'o', 'u')
+        VOWELS = ('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U')
         PUNCTUATION_MARKS = (',', '.', '!', '?')
 
         piglatin_words = []
@@ -212,10 +213,9 @@ if __name__ == '__main__':
     """
     print(title)
     command = ''
-    exit_commands = ['quit', 'q', 'exit']
 
-    while command not in exit_commands:
+    while command not in EXIT_COMMANDS:
         command = input('(>^_^)> ')
-        if command in exit_commands:
+        if command in EXIT_COMMANDS:
             break
         run_command(command)
