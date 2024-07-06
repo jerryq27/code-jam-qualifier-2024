@@ -120,10 +120,10 @@ def parse_command_into_arguments(command: str) -> list[str]:
     arguments = []
     tokens = command.split()
     for i, token in enumerate(tokens):
-        if token[0] in ['"', '“']:
+        if token[0] in ['"', '“', '”']:
             quoted_token = ' '.join(tokens[i:])
             # Check if anyone tried to be cheeky and pass additional arguments after the quote
-            if quoted_token[-1] not in ['"', '“']:
+            if quoted_token[-1] not in ['"', '“', '”']:
                 raise ValueError('Invalid additional arguments')
             arguments.append(quoted_token)
             break
@@ -134,7 +134,7 @@ def parse_command_into_arguments(command: str) -> list[str]:
 def determine_variant(arguments: list[str]) -> tuple[str, VariantMode]:
     second_arg = arguments[1]
 
-    if second_arg[0] in ['"', '“']:
+    if second_arg[0] in ['"', '“', '”']:
         return (second_arg, VariantMode.NORMAL)
     elif second_arg.lower() == 'uwu':
         return (arguments[2], VariantMode.UWU)
