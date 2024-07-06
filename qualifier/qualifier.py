@@ -2,7 +2,7 @@ import warnings
 from enum import auto, StrEnum
 
 MAX_QUOTE_LENGTH = 50
-
+QUOTATION_MARKS = ['"', '“', '”']
 
 # The two classes below are available for you to use
 # You do not need to implement them
@@ -23,8 +23,7 @@ class Quote:
         self.mode = mode
 
         # Trim quotes if they exist
-        quotation_marks = ['"', '“', '”']
-        if self.quote[0] in quotation_marks:
+        if self.quote[0] in QUOTATION_MARKS:
             self.quote = self.quote[1:-1]
 
         if len(self.quote) > MAX_QUOTE_LENGTH:
@@ -54,15 +53,14 @@ class Quote:
             raise ValueError(f'Invalid mode: {self.mode}')
 
     def _uwuify(self, quote):
+        uwu_quote = quote
         # Take care of the easier requirements first
         for lowercase_char in ['l', 'r']:
-            quote = quote.replace(lowercase_char, 'w')
+            uwu_quote = uwu_quote.replace(lowercase_char, 'w')
         for uppercase_char in ['L', 'R']:
-            quote = quote.replace(uppercase_char, 'W')
+            uwu_quote = uwu_quote.replace(uppercase_char, 'W')
 
-        # Need offset for index since quote length changes when added U-U/u-u replacement.
-        u_u_offset = 0
-        words = quote.split()
+        words = uwu_quote.split()
         uwu_words = []
         for word in words:
             if word[0] in ['u', 'U']:
@@ -70,13 +68,12 @@ class Quote:
                 word = f'{u_u_sequence}{word[1:]}'
             uwu_words.append(word)
 
-        uwu_quote = ' '.join(uwu_words)
+        modified_quote = ' '.join(uwu_words)
 
-        if len(uwu_quote) > MAX_QUOTE_LENGTH:
+        if len(modified_quote) > MAX_QUOTE_LENGTH:
             warnings.warn('Quote too long, only partially transformed')
-            uwu_quote = quote
         else:
-            quote = uwu_quote
+            uwu_quote = modified_quote
 
         if uwu_quote == self.quote:
             raise ValueError('Quote was not modified')
@@ -86,19 +83,19 @@ class Quote:
     def _piglatinify(self, quote):
         words = quote.split()
 
-        vowels = ['a', 'e', 'i', 'o', 'u']
-        punctuation_marks = (',', '.', '!', '?')
+        VOWELS = ('a', 'e', 'i', 'o', 'u')
+        PUNCTUATION_MARKS = (',', '.', '!', '?')
 
         piglatin_words = []
         for word in words:
             punctuation_mark = ''
-            has_punctuation_mark = word.endswith(punctuation_marks)
+            has_punctuation_mark = word.endswith(PUNCTUATION_MARKS)
             if has_punctuation_mark:
                 punctuation_mark = word[-1]
                 word = word[:-1]
             
             # First vowels, much simpler
-            if word[0] in vowels:
+            if word[0] in VOWELS:
                 piglatin_word = f'{word}way'
                 if has_punctuation_mark:
                     piglatin_word += punctuation_mark
@@ -107,7 +104,7 @@ class Quote:
             else:
                 # Cursed double for loop, but need to iterate the characters
                 for i, character in enumerate(word):
-                    if character in vowels:
+                    if character in VOWELS:
                         # String slicing op!
                         consonant_cluster = word[:i]
                         piglatin_word = word[i:] + f'{consonant_cluster}ay'
@@ -135,10 +132,10 @@ def parse_command_into_arguments(command: str) -> list[str]:
     arguments = []
     tokens = command.split()
     for i, token in enumerate(tokens):
-        if token[0] in ['"', '“', '”']:
+        if token[0] in QUOTATION_MARKS:
             quoted_token = ' '.join(tokens[i:])
             # Check if anyone tried to be cheeky and pass additional arguments after the quote
-            if quoted_token[-1] not in ['"', '“', '”']:
+            if quoted_token[-1] not in QUOTATION_MARKS:
                 raise ValueError('Invalid additional arguments')
             arguments.append(quoted_token)
             break
@@ -149,7 +146,7 @@ def parse_command_into_arguments(command: str) -> list[str]:
 def determine_variant(arguments: list[str]) -> tuple[str, VariantMode]:
     second_arg = arguments[1]
 
-    if second_arg[0] in ['"', '“', '”']:
+    if second_arg[0] in QUOTATION_MARKS:
         return (second_arg, VariantMode.NORMAL)
     elif second_arg.lower() == 'uwu':
         return (arguments[2], VariantMode.UWU)
@@ -185,7 +182,6 @@ def run_command(command: str) -> None:
         quote, mode = determine_variant(arguments)
         new_quote = Quote(quote, mode)
         
-        # Check for duplicates
         db_quotes = Database.get_quotes()
         try:
             Database.add_quote(new_quote)
