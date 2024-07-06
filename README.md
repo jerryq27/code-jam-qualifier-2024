@@ -1,3 +1,4 @@
+
 # Code Jam 2024: Qualifier
 
 To qualify for the upcoming Code Jam, you'll have to complete a qualifier assignment. The goal is to make sure you have enough Python knowledge to effectively contribute to a team.
@@ -48,50 +49,50 @@ The quote immortalizer will have 4 commands you need to implement:
 
 Below we go through each command and what they need to implement and consider.
 
-- A valid `quote` command will have the following formation: `quote "quote goes here"`
+- ~~A valid `quote` command will have the following formation: `quote "quote goes here"`~~
     - The command should also support smart quotes: `quote “quote goes here”`
-    - You can rely that a valid, full quote will be surrounded by an opening and closing quotation mark, the quote is whatever is captured within that. The quote will only use spaces for whitespace.
-    - Quotes cannot be longer than 50 characters. A `ValueError`  with the following message `"Quote is too long"` should be raised if one that is added is longer than 50 characters.
-        - You may ask why the length limit? To keep things WebScale™️ of course!
-        - Also, “Brevity is the soul of wit”
+    - ~~You can rely that a valid, full quote will be surrounded by an opening and closing quotation mark, the quote is whatever is captured within that. The quote will only use spaces for whitespace.~~
+    - ~~Quotes cannot be longer than 50 characters. A `ValueError`  with the following message `"Quote is too long"` should be raised if one that is added is longer than 50 characters.~~
+        - ~~You may ask why the length limit? To keep things WebScale™️ of course!~~
+        - ~~Also, “Brevity is the soul of wit”~~
     - If the quote is valid, use the appropriate `Database` methods to store the result in the database.
         - The database will throw a `DuplicateError` error if a duplicate quote is added, you should catch this error and print the following message to the user if it is a duplicate:
             - `"Quote has already been added previously"`
         - You must pass an instance of the `Quote` class to `add_quote`
         - The `self.mode` of the Quote class must be one of the valid `VariantMode` enum options/values when it is added to the database.
-- A user may apply a variant to transform the quote to a silly variant (uwu, piglatin) before adding it to the database, more about that below.
+- ~~A user may apply a variant to transform the quote to a silly variant (uwu, piglatin) before adding it to the database, more about that below.~~
 - You should also support the command: `quote list`
     - This will print a formatted string showing a list of quotes using an unordered list with discord-flavored markdown.
     - Example print: `"- Quote A goes here\n- Quote B goes here\n- Quote C follows"`
-- If a user does not provide a valid command, then your program should raise a `ValueError` with the following message: `"Invalid command"`
+- ~~If a user does not provide a valid command, then your program should raise a `ValueError` with the following message: `"Invalid command"`~~
 
 **"Silly" Variant Flags:**
 
 There are 2 variants to support: uwu and piglatin. They will be given as subcommands to quote, see the following examples: `quote piglatin "This is my quote"`, `quote uwu "This is my quote"`
 
-- `uwu` variant: "uwu"-ify the quote before adding it
-    - All `L`s (upper and lowercase) should be turned into `W`s of the appropriate case.
-    - All `R`s (upper and lowercase) should be turned into `W`s of the appropriate case
-    - If a `U` (upper or lowercase) is present at the start of a word, it should be “stuttered”
-        - For example: "unify" → "u-unify"
+- ~~`uwu` variant: "uwu"-ify the quote before adding it~~
+    - ~~All `L`s (upper and lowercase) should be turned into `W`s of the appropriate case.~~
+    - ~~All `R`s (upper and lowercase) should be turned into `W`s of the appropriate case~~
+    - ~~If a `U` (upper or lowercase) is present at the start of a word, it should be “stuttered”~~
+        - ~~For example: "unify" → "u-unify"~~
     - If the quote would be too long after fully uwu-ifying it then do the following:
-        - Do the L/l→W/w and the R/r→W/w conversions
+        - ~~Do the L/l→W/w and the R/r→W/w conversions~~
         - Do **not** do the U/u "stutter"
-        - Use the warnings module to `warn` with the following message: `"Quote too long, only partially transformed"`
-    - If no words can be transformed, raise a `ValueError` error with the following message `"Quote was not modified"`.
-- `piglatin` variant: piglatin-ify the quote before adding it
-    - For the purposes of piglatin a vowel is any of the following: `aeiou`
-        - A consonant is everything else
-    - Move the first consonant cluster to the end of the word, add "ay" to the end
-    - If it begins with a vowel, only add "way" to the end of the word
-    - Examples:
-        - "pig" → "igpay", "latin" → "atinlay"
-        - "friends" → "iendsfray"
-        - "eat" → "eatway"
-    - Your program should be able to piglatin a quote regardless if it is lower case or upper case
-    - After the quote is tranformed it should Sentence Case the quote (first letter of the first word is capitalized)
-    - Do not transform any words if the entire quote cannot be transformed
-    - If no words can be transformed, raise a `ValueError` error with the following message `"Quote was not modified"`.
+        - ~~Use the warnings module to `warn` with the following message: `"Quote too long, only partially transformed"`~~
+    - ~~If no words can be transformed, raise a `ValueError` error with the following message `"Quote was not modified"`.~~
+- ~~`piglatin` variant: piglatin-ify the quote before adding it~~
+    - ~~For the purposes of piglatin a vowel is any of the following: `aeiou`~~
+        - ~~A consonant is everything else~~
+    - ~~Move the first consonant cluster to the end of the word, add "ay" to the end~~
+    - ~~If it begins with a vowel, only add "way" to the end of the word~~
+    - ~~Examples:~~
+        - ~~"pig" → "igpay", "latin" → "atinlay"~~
+        - ~~"friends" → "iendsfray"~~
+        - ~~"eat" → "eatway"~~
+    - ~~Your program should be able to piglatin a quote regardless if it is lower case or upper case~~
+    - ~~After the quote is tranformed it should Sentence Case the quote (first letter of the first word is capitalized)~~
+    - ~~Do not transform any words if the entire quote cannot be transformed~~
+    - ~~If no words can be transformed, raise a `ValueError` error with the following message `"Quote was not modified"`.~~
 
 ### **The Task**
 
@@ -159,3 +160,4 @@ class Database:
 ```
 
 ## Good Luck!
+
